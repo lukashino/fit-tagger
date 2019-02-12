@@ -1,24 +1,24 @@
 {
 
   "manifest_version": 2,
-  "name": "Border",
-  "version": "1.0",
+  "name": "Fit-tagger",
+  "version": "1.0.1",
 
-  "description": "Adds a red border to all webpages matching mozilla.org.",
+  "description": "An extension for students of Faculty of Information Technology at Brno University of Technology. Provides simple year tags corresponding to each name.",
 
   "icons": {
-    "48": "icons/border-48.png"
+    "48": "icons/fit-tagger-48.png"
   },
 
   "content_scripts": [
     {
       "matches": ["*://*.facebook.com/groups/fitbit2016/*"],
-      "js": ["borderify.js"]
+      "js": ["fit-tagger.js"]
     }
   ],
 
   "permissions": [
-    "<all_urls>"
+    "*://www.stud.fit.vutbr.cz/~xsismi01/fit_ranks/index.php"
   ]
 
 }
