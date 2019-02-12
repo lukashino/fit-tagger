@@ -23,6 +23,7 @@ Chrome
 3) Toggle developer mode in the upper right corner
 4) Click "Load unpacked"
 5) Select the root directory of downloaded repository
+
 **NOTE** Because Chrome blocks loading mixed content every time it seems like it doesn't work, please look at the right side of the URL bar. If there is a shield click on it and allow loading unsafe scripts.
 
 You now have installed the fit-tagger.
