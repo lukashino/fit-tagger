@@ -53,7 +53,7 @@ commentRequest.setRequestHeader("Content-Type", "application/json;charset=UTF-8"
 
 // When response arrives, ranks are added to names.
 commentRequest.addEventListener("load", function () {
-    shownPostNames = document.getElementsByClassName(" UFICommentActorName")
+    shownPostNames = document.getElementsByClassName("_6qw4")
     for (i = 0; i < shownPostNames.length; i++) {
         indata = JSON.parse(commentRequest.response);
         //console.log(indata[shownPostNames[i].innerText] + "-" + shownPostNames[i].innerText);
@@ -66,7 +66,7 @@ var data = Object();
 data.names = Array();
 var kek;
 // Getting all the names from posts on the main feed.
-kek = document.getElementsByClassName(" UFICommentActorName")
+kek = document.getElementsByClassName("_6qw4")
 for (i = 0; i < kek.length; i++) {
     //console.log(kek[i].innerText);
     data.names.push(kek[i].innerText);
@@ -101,6 +101,7 @@ var callback = function (mutationsList, observer) {
             nodes = mutation.addedNodes;
 
             for (var n = 0; node = nodes[n], n < nodes.length; n++) {
+                console.log(node.innerHTML);
                 if (node.tagName == "DIV" && (text = node.getElementsByClassName("fwb")).length > 0) {
                     for (i = 0; i < text.length; i++) {
                         data.names.push(text[i].innerText);
@@ -108,8 +109,12 @@ var callback = function (mutationsList, observer) {
                         //opdata.names.push(text[i].innerText);
                     }
                 }
-                else if (node.tagName == "DIV" && (text = node.getElementsByClassName(" UFICommentActorName")).length > 0) {
+                /**
+                 * Looking for comments. node.getElementsByClassName gets every comment. The class name may change.
+                 */
+                else if ((text = node.getElementsByClassName("_6qw4")).length > 0) {
                     for (i = 0; i < text.length; i++) {
+                        console.log(text[i].innerText);
                         opdata.names.push(text[i].innerText);
                         opdata.nodes.push(text[i]);
                     }
@@ -118,8 +123,8 @@ var callback = function (mutationsList, observer) {
             
             if (data.names.length > 0) {
                 for (i = 0; i < data.names.length; i++) {
-                    console.log("DAATAAa");
-                    console.log(data.names[i]);
+                    //console.log("DAATAAa");
+                    //console.log(data.names[i]);
                 }
                 specialNodes = nodes;
                 specialData = data;
@@ -131,9 +136,9 @@ var callback = function (mutationsList, observer) {
     
                 // When response arrives, ranks are added to names.
                 req.addEventListener("load", function () {
-                    console.log("received data");
-                    console.log(JSON.parse(req.response));
-                    console.log("END OF RECEIVED DATA");
+                    // console.log("received data");
+                    // console.log(JSON.parse(req.response));
+                    // console.log("END OF RECEIVED DATA");
     
                     for (var n = 0; node = specialNodes[n], n < specialNodes.length; n++) {
                         if (node.tagName == "DIV" && 
@@ -148,12 +153,12 @@ var callback = function (mutationsList, observer) {
                     };
                 });
 
-                console.log("SPECIAL DATA TO SEND");
-                console.log(specialData);
+                // console.log("SPECIAL DATA TO SEND");
+                // console.log(specialData);
     
                 req.send(JSON.stringify(specialData));
             }
-            console.log("Dalsi change");
+            // console.log("Dalsi change");
         }
 
     }
@@ -166,7 +171,7 @@ var callback = function (mutationsList, observer) {
         reqComment.addEventListener("load", function () {
             indata = JSON.parse(reqComment.response);
             for (var n = 0; loadedCommentName = opdata.nodes[n], n < opdata.nodes.length; n++) {
-                console.log(indata[loadedCommentName.innerText] + " - " + loadedCommentName.innerText);
+                // console.log(indata[loadedCommentName.innerText] + " - " + loadedCommentName.innerText);
                 loadedCommentName.innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + indata[loadedCommentName.innerText] + "</span>";
             };
         });
