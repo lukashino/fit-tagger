@@ -9,6 +9,9 @@
 
 // Sends a JSON request to an API end point
 // JSON req consists of names extracted from HTML
+
+var manifest = browser.runtime.getManifest();
+
 var req = new XMLHttpRequest();
 req.open("POST", "http://www.stud.fit.vutbr.cz/~xsismi01/fit_ranks/index.php", true);
 req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
@@ -29,7 +32,7 @@ req.addEventListener("load", function () {
         postName[i].getElementsByTagName("a")[0].innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + indata[postName[i].getElementsByTagName("a")[0].innerText] + "</span>";
     }
 
-    var commenterName = document.getElementsByClassName("dg") //df ce
+    var commenterName = document.getElementsByClassName("dn") //df ce
     var startIndex = postName.length;
     for (i = startIndex; i < commenterName.length; i++) {
         indata = JSON.parse(req.response);
@@ -37,14 +40,17 @@ req.addEventListener("load", function () {
         commenterName[i].getElementsByTagName("a")[0].innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + indata[commenterName[i].getElementsByTagName("a")[0].innerText] + "</span>";
     }
 
-    var subcommenterName = document.getElementsByClassName("bf") //bb bf bk
+    var subcommenterName = document.getElementsByClassName("bl bm") //bb bf bk
     for (i = 0; i < subcommenterName.length; i++) {
         indata = JSON.parse(req.response);
-        console.log(indata[subcommenterName[i].getElementsByTagName("a")[0].innerText] + "-" + subcommenterName[i].getElementsByTagName("a")[0].innerText);
-        subcommenterName[i].getElementsByTagName("a")[0].innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + indata[subcommenterName[i].getElementsByTagName("a")[0].innerText] + "</span>";
+        console.log(indata[subcommenterName[i].innerText] + "-" + subcommenterName[i].innerText);
+        subcommenterName[i].innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + indata[subcommenterName[i].innerText] + "</span>";
     }
 });
 
+
+var manifest = Object();
+manifest["fb_group_id"] = "1127391613999255";
 // Creating an object to send to API
 var data = Object();
 data.names = Array();
@@ -62,19 +68,26 @@ for (i = 0; i < postName.length; i++) {
 }
 
 // When post has at least one comment 
-var commenterName = document.getElementsByClassName("dg") //df ce
-for (i = 0; i < commenterName.length; i++) {
-    data.names.push(commenterName[i].getElementsByTagName("a")[0].innerText);
+var commenterDivs = document.querySelectorAll("div.g:not(#root)"); 
+for (i = 0; i < commenterDivs.length; i++) {
+    var commenterNames = commenterDivs[i].querySelectorAll("a.bs")
+
+    for (var j = 0; j < commenterNames.length; j++) {
+        console.log(commenterNames[j].innerText);
+        data.names.push(commenterNames[j].innerText);
+    }
 }
 
-// When comment has at least one subcomment
-var subcommenterName = document.getElementsByClassName("bf") // bb bf bk
-for (i = 0; i < subcommenterName.length; i++) {
-    data.names.push(subcommenterName[i].getElementsByTagName("a")[0].innerText);
+// When comment has at least one subcomment and we on the comment page 
+if (document.referrer.indexOf(manifest["fb_group_id"]) !== -1 && // if referrer is FIT group 
+    document.URL.indexOf(manifest["fb_group_id"]) === -1) { // but it is not on the FIT group page directly
+    var subcommenterName = document.getElementsByClassName("bl bm")
+    for (i = 0; i < subcommenterName.length; i++) {
+        console.log(subcommenterName[i].innerText);
+        data.names.push(subcommenterName[i].innerText);
+    }
 }
 
-
-//console.log(JSON.stringify(data));
 // Sending a JSON object to an API specified before.
 req.send(JSON.stringify(data));
 

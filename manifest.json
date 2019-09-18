@@ -10,6 +10,8 @@
     "48": "icons/fit-tagger-48.png"
   },
 
+  "fb_group_id": "1127391613999255",
+
   "content_scripts": [
     {
       "matches": ["*://*.facebook.com/groups/1127391613999255*"],
