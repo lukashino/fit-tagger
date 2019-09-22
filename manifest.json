@@ -10,6 +10,16 @@
     "48": "icons/fit-tagger-48.png"
   },
 
+  "browser_action": {
+    "default_icon": "icons/fit-tagger-48.png",
+    "theme_icons": [{
+        "light": "icons/fit-tagger-48.png",
+        "dark": "icons/fit-tagger-48.png",
+        "size": 48
+    }],
+    "default_title": "Fit-tagger",
+    "default_popup": "popup/main-menu.html"
+  },
 
   "content_scripts": [
     {
@@ -19,6 +29,7 @@
   ],
 
   "permissions": [
+    "activeTab",
     "*://www.stud.fit.vutbr.cz/~xsismi01/fit_ranks/index.php"
   ]
 
