@@ -59,6 +59,7 @@ req.addEventListener("load", function () {
 });
 
 console.log("fungujem vobec???????");
+//browser.storage.local.set({"Cau" : "mnau"});
 var manifest = Object();
 manifest["fb_group_id"] = "1127391613999255";
 // Creating an object to send to API
@@ -108,4 +109,20 @@ console.log(data);
 
 // Sending a JSON object to an API specified before.
 req.send(JSON.stringify(data));
+
+getPasswd = browser.storage.local.get();
+
+getPasswd.then(results => {
+    console.log("Local storage contents:");
+    console.log(results);
+
+    passwdPath = results["passwdFile"]
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var contents = e.target.result;
+        console.log("File content:");
+        console.log(contents);
+    };
+    reader.readAsText(passwdPath);
+});
 console.log("Poslal som");
