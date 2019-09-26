@@ -17,12 +17,32 @@ function handlePicked() {
     savePasswdFile(this.files);
 }
 
+function handleBtnClicked() {
+    const passwdFile = "Ahoj Janooooooooooo";
+    browser.tabs.executeScript({
+            file: "/content_scripts/content.js"
+        }).then(messageContent)
+        .catch(reportError);
+
+    function messageContent() {
+        const gettingActiveTab = browser.tabs.query({active: true, currentWindow: true});
+        gettingActiveTab.then((tabs) => {
+            browser.tabs.sendMessage(tabs[0].id, {passwdFile});
+        });
+    }
+
+    function reportError(error) {
+        console.error(`Could not inject content script: ${error}`);
+    }
+}
+
 /* 
 Insert the content script and send the file to the content script using a message.
 */ 
 function savePasswdFile(fileList) {
     const passwdFile = fileList[0];
 
+    // browser.runtime.sendMessage({passwdFile});
     browser.tabs.executeScript({
             file: "/content_scripts/content.js"
         }).then(messageContent)
@@ -40,3 +60,6 @@ function savePasswdFile(fileList) {
     }
 }
   
+
+const inputBtnElement = document.getElementById("inputbtn");
+inputBtnElement.addEventListener("click", handleBtnClicked, false);
