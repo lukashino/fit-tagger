@@ -12,15 +12,7 @@
 
 // var manifest = browser.runtime.getManifest();
 
-/*
-Check and set a global guard variable.
-If this content script is injected into the same page again,
-it will do nothing next time.
-*/
-//  if (window.hasRun) {
-//     return;
-//   }
-//   window.hasRun = true;
+var passwdContent = "";
 
 /*
 Add the passwd file to the script by:
@@ -75,6 +67,8 @@ class PasswdManager {
     async readPasswd() {
         logging.log(LogLevel.WARNING, "READ storage contents:");
         var getPasswd = browser.storage.local.get();
+
+        this._passwdContents = "TERAZ SOM TOTO NAHRAL DO PASSWD CONTETNS"
         
         getPasswd.then(results => {
             logging.log(LogLevel.WARNING, "Local storage contents:");
@@ -87,7 +81,9 @@ class PasswdManager {
             if (passwdFile) {
                 var reader = new FileReader();
                 reader.onload = function(e) {
-                    this._passwdContents = String(e.target.result);
+                    this._passwdContents = e.target.result;
+                    passwdContent = e.target.result;
+                    
                     // this._passwdContents = (' ' + e.target.result).slice(1);
                     logging.log(LogLevel.DEBUG, "File content:");
                     logging.log(LogLevel.DEBUG, this._passwdContents);
@@ -123,7 +119,7 @@ class PasswdManager {
         logging.log(LogLevel.INFO, "Names regexes done");
 
         var ranks = Array();
-        var fullNameMatches = this._passwdContents.match(fullNameRegExp);
+        var fullNameMatches = passwdContent.match(fullNameRegExp);
         logging.log(LogLevel.INFO, "Matches matched");
         logging.log(LogLevel.INFO, fullNameMatches);
         logging.log(LogLevel.INFO, "Passwd contents getRank");
@@ -171,114 +167,117 @@ var passwdManager = new PasswdManager();
 passwdManager.readPasswd();
 
 function hladaj() {
-    // logging.log(LogLevel.DEBUG, passwdManager.getRank("Olo chmelo"));
-    logging.log(LogLevel.DEBUG, passwdManager);
+    logging.log(LogLevel.DEBUG, passwdManager.getRank("Lukáš Šišmiš"));
+
+    var req = new XMLHttpRequest();
+    req.open("POST", "http://www.stud.fit.vutbr.cz/~xsismi01/fit_ranks/index.php", true);
+    req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+    // When response arrives, ranks are added to names.
+    req.addEventListener("load", function () {
+        logging.log(LogLevel.INFO, "CasdAU!");
+        logging.log(LogLevel.INFO, req.response);
+        logging.log(LogLevel.INFO, "dsadCAU!");
+        logging.log(LogLevel.INFO, "CasdaAU!");
+        logging.log(LogLevel.INFO, "asdadsaCAU!");
+        // var postNames = document.getElementsByClassName("h3.dx.dy")
+        // for (i = 0; i < postNames.length; i++) {
+        //     indata = JSON.parse(req.response);
+        //     logging.log(LogLevel.INFO, indata[postNames[i].getElementsByTagName("a")[0].innerText] + "-" + postNames[i].getElementsByTagName("a")[0].innerText);
+        //     postNames[i].getElementsByTagName("a")[0].innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + indata[postNames[i].getElementsByTagName("a")[0].innerText] + "</span>";
+        // }
+
+        // var postName = document.getElementsByClassName("br bs bt bu")
+        // for (i = 0; i < postName.length; i++) {
+        //     indata = JSON.parse(req.response);
+        //     logging.log(LogLevel.INFO, indata[postName[i].getElementsByTagName("a")[0].innerText] + "-" + postName[i].getElementsByTagName("a")[0].innerText);
+        //     postName[i].getElementsByTagName("a")[0].innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + indata[postName[i].getElementsByTagName("a")[0].innerText] + "</span>";
+        // }
+
+        // var rootDiv = document.querySelectorAll("div.g:not(#root)")
+        // for (var i = 0; i < rootDiv.length; i++) {
+        //     if (rootDiv[i].id.indexOf("ufi_") === -1) 
+        //         continue;
+        //     var comments = rootDiv[i].querySelectorAll("div")[0].childNodes[3].childNodes
+        //     for (var j = 0; j < comments.length; j++) {
+        //         indata = JSON.parse(req.response);
+        //         var name = comments[j].querySelector("div h3 a")
+        //         logging.log(LogLevel.INFO, indata[name.innerText] + "-" + name.innerText);
+        //         name.innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + indata[name.innerText] + "</span>";
+        //     }	
+        // }
+
+        // if (document.referrer.indexOf(manifest["fb_group_id"]) !== -1 && // if referrer is FIT group 
+        //     document.URL.indexOf(manifest["fb_group_id"]) === -1) { // but it is not on the FIT group page directly
+        //     var subcommenterName = document.getElementsByClassName("bl bm")
+        //     for (i = 0; i < subcommenterName.length; i++) {
+        //         indata = JSON.parse(req.response);
+        //         logging.log(LogLevel.INFO, indata[subcommenterName[i].innerText] + "-" + subcommenterName[i].innerText);
+        //         subcommenterName[i].innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + indata[subcommenterName[i].innerText] + "</span>";
+        //     }
+        // }
+    });
+
+    var manifest = Object();
+    manifest["fb_group_id"] = "1127391613999255";
+    // Creating an object to send to API
+    var data = Object();
+    data.names = Array();
+
+    // Getting all the names from posts on the main feed.
+    var postNames = document.querySelectorAll("h3.dx.dy")
+    for (i = 0; i < postNames.length; i++) {
+        // data.names.push(postNames[i].getElementsByTagName("a")[0].innerText);
+        var name = postNames[i].getElementsByTagName("a")[0].innerText;
+        var rank = passwdManager.getRank(name).join(", ");
+        console.log(name + "has rank: " + rank);
+        postNames[i].getElementsByTagName("a")[0].innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + rank + "</span>";
+    }
+
+    logging.log(LogLevel.INFO, "POSTS MAIN FEED");
+    // When post is opened in a new window
+    var postName = document.getElementsByClassName("br bs bt bu")
+    for (i = 0; i < postName.length; i++) {
+        data.names.push(postName[i].getElementsByTagName("a")[0].innerText);
+    }
+
+    logging.log(LogLevel.INFO, "POSTS NEW WINDOW");
+    // When post has at least one comment 
+    var rootDiv = document.querySelectorAll("div.g:not(#root)")
+    for (var i = 0; i < rootDiv.length; i++) {
+        if (rootDiv[i].id.indexOf("ufi_") === -1) 
+            continue;
+        var comments = rootDiv[i].querySelectorAll("div")[0].childNodes[3].childNodes
+        for (var j = 0; j < comments.length; j++) {
+            var name = comments[j].querySelector("div h3 a").innerText
+            data.names.push(name);
+        }	
+    }
+    logging.log(LogLevel.INFO, "Comments new window");
+
+    // When comment has at least one subcomment and we on the comment page 
+    if (document.referrer.indexOf(manifest["fb_group_id"]) !== -1 && // if referrer is FIT group 
+        document.URL.indexOf(manifest["fb_group_id"]) === -1) { // but it is not on the FIT group page directly
+        var subcommenterName = document.getElementsByClassName("bl bm")
+        for (i = 0; i < subcommenterName.length; i++) {
+            logging.log(LogLevel.INFO, subcommenterName[i].innerText);
+            data.names.push(subcommenterName[i].innerText);
+        }
+    }
+    logging.log(LogLevel.INFO, "Subcomments new new window");
+
+    logging.log(LogLevel.INFO, "Data");
+    logging.log(LogLevel.INFO, data);
+
+    // Sending a JSON object to an API specified before.
+    req.send(JSON.stringify(data));
+
+
+    logging.log(LogLevel.INFO, "Poslal som");
+
+
+    // logging.log(LogLevel.DEBUG, passwdManager.getRank("Oliver Chmelický"));
+
 }
 
 setTimeout(hladaj, 3000);
-
-
-var req = new XMLHttpRequest();
-req.open("POST", "http://www.stud.fit.vutbr.cz/~xsismi01/fit_ranks/index.php", true);
-req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-
-// When response arrives, ranks are added to names.
-req.addEventListener("load", function () {
-    logging.log(LogLevel.INFO, "CasdAU!");
-    logging.log(LogLevel.INFO, req.response);
-    logging.log(LogLevel.INFO, "dsadCAU!");
-    logging.log(LogLevel.INFO, "CasdaAU!");
-    logging.log(LogLevel.INFO, "asdadsaCAU!");
-    // var postNames = document.getElementsByClassName("h3.dx.dy")
-    // for (i = 0; i < postNames.length; i++) {
-    //     indata = JSON.parse(req.response);
-    //     logging.log(LogLevel.INFO, indata[postNames[i].getElementsByTagName("a")[0].innerText] + "-" + postNames[i].getElementsByTagName("a")[0].innerText);
-    //     postNames[i].getElementsByTagName("a")[0].innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + indata[postNames[i].getElementsByTagName("a")[0].innerText] + "</span>";
-    // }
-
-    // var postName = document.getElementsByClassName("br bs bt bu")
-    // for (i = 0; i < postName.length; i++) {
-    //     indata = JSON.parse(req.response);
-    //     logging.log(LogLevel.INFO, indata[postName[i].getElementsByTagName("a")[0].innerText] + "-" + postName[i].getElementsByTagName("a")[0].innerText);
-    //     postName[i].getElementsByTagName("a")[0].innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + indata[postName[i].getElementsByTagName("a")[0].innerText] + "</span>";
-    // }
-
-    // var rootDiv = document.querySelectorAll("div.g:not(#root)")
-    // for (var i = 0; i < rootDiv.length; i++) {
-    //     if (rootDiv[i].id.indexOf("ufi_") === -1) 
-    //         continue;
-    //     var comments = rootDiv[i].querySelectorAll("div")[0].childNodes[3].childNodes
-    //     for (var j = 0; j < comments.length; j++) {
-    //         indata = JSON.parse(req.response);
-    //         var name = comments[j].querySelector("div h3 a")
-    //         logging.log(LogLevel.INFO, indata[name.innerText] + "-" + name.innerText);
-    //         name.innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + indata[name.innerText] + "</span>";
-    //     }	
-    // }
-
-    // if (document.referrer.indexOf(manifest["fb_group_id"]) !== -1 && // if referrer is FIT group 
-    //     document.URL.indexOf(manifest["fb_group_id"]) === -1) { // but it is not on the FIT group page directly
-    //     var subcommenterName = document.getElementsByClassName("bl bm")
-    //     for (i = 0; i < subcommenterName.length; i++) {
-    //         indata = JSON.parse(req.response);
-    //         logging.log(LogLevel.INFO, indata[subcommenterName[i].innerText] + "-" + subcommenterName[i].innerText);
-    //         subcommenterName[i].innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + indata[subcommenterName[i].innerText] + "</span>";
-    //     }
-    // }
-});
-
-var manifest = Object();
-manifest["fb_group_id"] = "1127391613999255";
-// Creating an object to send to API
-var data = Object();
-data.names = Array();
-
-// Getting all the names from posts on the main feed.
-var postNames = document.querySelectorAll("h3.dx.dy")
-for (i = 0; i < postNames.length; i++) {
-    data.names.push(postNames[i].getElementsByTagName("a")[0].innerText);
-}
-
-logging.log(LogLevel.INFO, "POSTS MAIN FEED");
-// When post is opened in a new window
-var postName = document.getElementsByClassName("br bs bt bu")
-for (i = 0; i < postName.length; i++) {
-    data.names.push(postName[i].getElementsByTagName("a")[0].innerText);
-}
-
-logging.log(LogLevel.INFO, "POSTS NEW WINDOW");
-// When post has at least one comment 
-var rootDiv = document.querySelectorAll("div.g:not(#root)")
-for (var i = 0; i < rootDiv.length; i++) {
-	if (rootDiv[i].id.indexOf("ufi_") === -1) 
-		continue;
-	var comments = rootDiv[i].querySelectorAll("div")[0].childNodes[3].childNodes
-	for (var j = 0; j < comments.length; j++) {
-        var name = comments[j].querySelector("div h3 a").innerText
-        data.names.push(name);
-	}	
-}
-logging.log(LogLevel.INFO, "Comments new window");
-
-// When comment has at least one subcomment and we on the comment page 
-if (document.referrer.indexOf(manifest["fb_group_id"]) !== -1 && // if referrer is FIT group 
-    document.URL.indexOf(manifest["fb_group_id"]) === -1) { // but it is not on the FIT group page directly
-    var subcommenterName = document.getElementsByClassName("bl bm")
-    for (i = 0; i < subcommenterName.length; i++) {
-        logging.log(LogLevel.INFO, subcommenterName[i].innerText);
-        data.names.push(subcommenterName[i].innerText);
-    }
-}
-logging.log(LogLevel.INFO, "Subcomments new new window");
-
-logging.log(LogLevel.INFO, "Data");
-logging.log(LogLevel.INFO, data);
-
-// Sending a JSON object to an API specified before.
-req.send(JSON.stringify(data));
-
-
-logging.log(LogLevel.INFO, "Poslal som");
-
-
-// logging.log(LogLevel.DEBUG, passwdManager.getRank("Oliver Chmelický"));
