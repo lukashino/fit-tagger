@@ -100,14 +100,7 @@ class PasswdManager {
         });
     }
 
-    async getRank(name) {
-        console.log("SOM VGET RANKU");
-        console.log(this);
-        var kek = await this.readPasswd();
-        console.log("Po read passwd");
-        console.log(this);
-
-
+    getRank(name) {
         var surname = this.sanitizeSurname(name);
         var fullName = this.sanitizeName(name);
 
@@ -120,16 +113,32 @@ class PasswdManager {
 
         var ranks = Array();
         var fullNameMatches = passwdContent.match(fullNameRegExp);
-        logging.log(LogLevel.INFO, "Matches matched");
-        logging.log(LogLevel.INFO, fullNameMatches);
-        logging.log(LogLevel.INFO, "Passwd contents getRank");
-        logging.log(LogLevel.INFO, this._passwdContents);
-        var rankRegExp = new RegExp(",([^:]+):");
-        for (var nameMatch of fullNameMatches) {
-            var rankArr = nameMatch.match(rankRegExp)
-            
-            if (rankArr.length === 2)
-                ranks.push(rankArr[1]);
+        if (fullNameMatches) {
+            logging.log(LogLevel.INFO, "Fullname's matches");
+            logging.log(LogLevel.INFO, fullNameMatches);
+
+            var rankRegExp = new RegExp(",([^:]+):");
+            for (var nameMatch of fullNameMatches) {
+                var rankArr = nameMatch.match(rankRegExp)
+                
+                if (rankArr.length === 2)
+                    ranks.push(rankArr[1]);
+            }
+        }
+        else {
+            var surnameMatches = passwdContent.match(surnameRegExp);
+            if (surnameMatches && surnameMatches.length === 1) {
+                logging.log(LogLevel.INFO, "Surname's matches");
+                logging.log(LogLevel.INFO, surnameMatches);
+
+                var rankRegExp = new RegExp(",([^:]+):");
+                for (var nameMatch of surnameMatches) {
+                    var rankArr = nameMatch.match(rankRegExp)
+                    
+                    if (rankArr.length === 2)
+                        ranks.push(rankArr[1]);
+                }
+            }
         }
 
         logging.log(LogLevel.INFO, "RANKS FOR NAME: " + fullName);
@@ -165,59 +174,9 @@ class PasswdManager {
 
 var passwdManager = new PasswdManager();
 passwdManager.readPasswd();
+console.log("Uz po reade");
 
 function hladaj() {
-    logging.log(LogLevel.DEBUG, passwdManager.getRank("Lukáš Šišmiš"));
-
-    var req = new XMLHttpRequest();
-    req.open("POST", "http://www.stud.fit.vutbr.cz/~xsismi01/fit_ranks/index.php", true);
-    req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-
-    // When response arrives, ranks are added to names.
-    req.addEventListener("load", function () {
-        logging.log(LogLevel.INFO, "CasdAU!");
-        logging.log(LogLevel.INFO, req.response);
-        logging.log(LogLevel.INFO, "dsadCAU!");
-        logging.log(LogLevel.INFO, "CasdaAU!");
-        logging.log(LogLevel.INFO, "asdadsaCAU!");
-        // var postNames = document.getElementsByClassName("h3.dx.dy")
-        // for (i = 0; i < postNames.length; i++) {
-        //     indata = JSON.parse(req.response);
-        //     logging.log(LogLevel.INFO, indata[postNames[i].getElementsByTagName("a")[0].innerText] + "-" + postNames[i].getElementsByTagName("a")[0].innerText);
-        //     postNames[i].getElementsByTagName("a")[0].innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + indata[postNames[i].getElementsByTagName("a")[0].innerText] + "</span>";
-        // }
-
-        // var postName = document.getElementsByClassName("br bs bt bu")
-        // for (i = 0; i < postName.length; i++) {
-        //     indata = JSON.parse(req.response);
-        //     logging.log(LogLevel.INFO, indata[postName[i].getElementsByTagName("a")[0].innerText] + "-" + postName[i].getElementsByTagName("a")[0].innerText);
-        //     postName[i].getElementsByTagName("a")[0].innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + indata[postName[i].getElementsByTagName("a")[0].innerText] + "</span>";
-        // }
-
-        // var rootDiv = document.querySelectorAll("div.g:not(#root)")
-        // for (var i = 0; i < rootDiv.length; i++) {
-        //     if (rootDiv[i].id.indexOf("ufi_") === -1) 
-        //         continue;
-        //     var comments = rootDiv[i].querySelectorAll("div")[0].childNodes[3].childNodes
-        //     for (var j = 0; j < comments.length; j++) {
-        //         indata = JSON.parse(req.response);
-        //         var name = comments[j].querySelector("div h3 a")
-        //         logging.log(LogLevel.INFO, indata[name.innerText] + "-" + name.innerText);
-        //         name.innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + indata[name.innerText] + "</span>";
-        //     }	
-        // }
-
-        // if (document.referrer.indexOf(manifest["fb_group_id"]) !== -1 && // if referrer is FIT group 
-        //     document.URL.indexOf(manifest["fb_group_id"]) === -1) { // but it is not on the FIT group page directly
-        //     var subcommenterName = document.getElementsByClassName("bl bm")
-        //     for (i = 0; i < subcommenterName.length; i++) {
-        //         indata = JSON.parse(req.response);
-        //         logging.log(LogLevel.INFO, indata[subcommenterName[i].innerText] + "-" + subcommenterName[i].innerText);
-        //         subcommenterName[i].innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + indata[subcommenterName[i].innerText] + "</span>";
-        //     }
-        // }
-    });
-
     var manifest = Object();
     manifest["fb_group_id"] = "1127391613999255";
     // Creating an object to send to API
@@ -229,19 +188,29 @@ function hladaj() {
     for (i = 0; i < postNames.length; i++) {
         // data.names.push(postNames[i].getElementsByTagName("a")[0].innerText);
         var name = postNames[i].getElementsByTagName("a")[0].innerText;
-        var rank = passwdManager.getRank(name).join(", ");
-        console.log(name + "has rank: " + rank);
-        postNames[i].getElementsByTagName("a")[0].innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + rank + "</span>";
+        var ranks = passwdManager.getRank(name);
+        if (ranks.length > 0) {
+            var rank = ranks.join(", ");
+            logging.log(LogLevel.INFO, name + " has rank: " + rank);
+            postNames[i].getElementsByTagName("a")[0].innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + rank + "</span>";
+        }
     }
-
     logging.log(LogLevel.INFO, "POSTS MAIN FEED");
+
     // When post is opened in a new window
     var postName = document.getElementsByClassName("br bs bt bu")
     for (i = 0; i < postName.length; i++) {
-        data.names.push(postName[i].getElementsByTagName("a")[0].innerText);
+        // data.names.push(postName[i].getElementsByTagName("a")[0].innerText);
+        var name = postName[i].getElementsByTagName("a")[0].innerText;
+        var ranks = passwdManager.getRank(name);
+        if (ranks.length > 0) {
+            var rank = ranks.join(", ");
+            logging.log(LogLevel.INFO, name + " has rank: " + rank);
+            postName[i].getElementsByTagName("a")[0].innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + rank + "</span>";
+        }
     }
-
     logging.log(LogLevel.INFO, "POSTS NEW WINDOW");
+
     // When post has at least one comment 
     var rootDiv = document.querySelectorAll("div.g:not(#root)")
     for (var i = 0; i < rootDiv.length; i++) {
@@ -250,7 +219,13 @@ function hladaj() {
         var comments = rootDiv[i].querySelectorAll("div")[0].childNodes[3].childNodes
         for (var j = 0; j < comments.length; j++) {
             var name = comments[j].querySelector("div h3 a").innerText
-            data.names.push(name);
+            // data.names.push(name);
+            var ranks = passwdManager.getRank(name);
+            if (ranks.length > 0) {
+                var rank = ranks.join(", ");
+                logging.log(LogLevel.INFO, name + " has rank: " + rank);
+                comments[j].querySelector("div h3 a").innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + rank + "</span>";
+            }
         }	
     }
     logging.log(LogLevel.INFO, "Comments new window");
@@ -260,8 +235,15 @@ function hladaj() {
         document.URL.indexOf(manifest["fb_group_id"]) === -1) { // but it is not on the FIT group page directly
         var subcommenterName = document.getElementsByClassName("bl bm")
         for (i = 0; i < subcommenterName.length; i++) {
-            logging.log(LogLevel.INFO, subcommenterName[i].innerText);
-            data.names.push(subcommenterName[i].innerText);
+            // logging.log(LogLevel.INFO, subcommenterName[i].innerText);
+            // data.names.push(subcommenterName[i].innerText);
+            var name = subcommenterName[i].innerText;
+            var ranks = passwdManager.getRank(name);
+            if (ranks.length > 0) {
+                var rank = ranks.join(", ");
+                logging.log(LogLevel.INFO, name + " has rank: " + rank);
+                subcommenterName[i].innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + rank + "</span>";
+            }
         }
     }
     logging.log(LogLevel.INFO, "Subcomments new new window");
