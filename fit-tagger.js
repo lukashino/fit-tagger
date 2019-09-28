@@ -11,8 +11,9 @@
 // JSON req consists of names extracted from HTML
 
 // var manifest = browser.runtime.getManifest();
-
-var passwdContent = "";
+var manifest = Object();
+manifest["fb_group_id"] = "1127391613999255";
+manifest["fb_group_ids"] = ["1127391613999255", "1502394016560101"];
 
 /*
 Add the passwd file to the script by:
@@ -57,188 +58,177 @@ RegExp.escape= function(s) {
 
 const logging = new Logging(LogLevel.DEBUG);
 
+var readPasswd = new Promise(function(resolve, reject) {
+    logging.log(LogLevel.DEBUG, "READ storage contents:");
+    var getPasswd = browser.storage.local.get();
 
-class PasswdManager {
-    constructor() {
-        console.log("CReAAAAAAAAATING NEW PASSWD MANAGER");
-        //this._passwdContents = "";
+    getPasswd.then(results => {
+        logging.log(LogLevel.DEBUG, "Local storage contents:");
+        logging.log(LogLevel.DEBUG, results);
+
+        var passwdFile = results["passwdFile"];
+        if (passwdFile) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                // passwdContent = e.target.result;
+                
+                resolve(e.target.result);
+            };
+
+            reader.readAsText(passwdFile);
+        }
+        else {
+            reject(Error("PASSWD FILE NOT LOADED"));
+        }
+    });
+});
+
+function getRank(passwdContent, name) {
+    var surname = this.sanitizeSurname(name);
+    var fullName = this.sanitizeName(name);
+
+    logging.log(LogLevel.DEBUG, "Surname: " + surname);
+    logging.log(LogLevel.DEBUG, "FullName: " + fullName);
+
+    var surnameRegExp = this.nameToRegExp(surname);
+    var fullNameRegExp = this.nameToRegExp(fullName);
+    logging.log(LogLevel.DEBUG, "Names regexes done");
+
+    var ranks = Array();
+    var fullNameMatches = passwdContent.match(fullNameRegExp);
+    if (fullNameMatches) {
+        logging.log(LogLevel.DEBUG, "Fullname's matches");
+        logging.log(LogLevel.DEBUG, fullNameMatches);
+
+        var rankRegExp = new RegExp(",([^:]+):");
+        for (var nameMatch of fullNameMatches) {
+            var rankArr = nameMatch.match(rankRegExp)
+            
+            if (rankArr.length === 2)
+                ranks.push(rankArr[1]);
+        }
     }
-
-    async readPasswd() {
-        logging.log(LogLevel.WARNING, "READ storage contents:");
-        var getPasswd = browser.storage.local.get();
-
-        this._passwdContents = "TERAZ SOM TOTO NAHRAL DO PASSWD CONTETNS"
-        
-        getPasswd.then(results => {
-            logging.log(LogLevel.WARNING, "Local storage contents:");
-            logging.log(LogLevel.WARNING, results);
-
-            logging.log(LogLevel.WARNING, "PASSWD FILE BEFORE");
-            var passwdFile = results["passwdFile"];
-            logging.log(LogLevel.WARNING, passwdFile);
-            logging.log(LogLevel.WARNING, "PASSWD FILE AFTER");
-            if (passwdFile) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    this._passwdContents = e.target.result;
-                    passwdContent = e.target.result;
-                    
-                    // this._passwdContents = (' ' + e.target.result).slice(1);
-                    logging.log(LogLevel.DEBUG, "File content:");
-                    logging.log(LogLevel.DEBUG, this._passwdContents);
-                    console.log("OLIVEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEER");
-                };
-
-                reader.readAsText(passwdFile);
-            }
-            else {
-                logging.log(LogLevel.WARNING, "PASSWD FILE NOT LOADED")
-            }
-
-            console.log("PO PASSWD FILE NACITANI");
-        });
-    }
-
-    getRank(name) {
-        var surname = this.sanitizeSurname(name);
-        var fullName = this.sanitizeName(name);
-
-        logging.log(LogLevel.INFO, "SurName: " + surname);
-        logging.log(LogLevel.INFO, "FullName: " + fullName);
-
-        var surnameRegExp = this.nameToRegExp(surname);
-        var fullNameRegExp = this.nameToRegExp(fullName);
-        logging.log(LogLevel.INFO, "Names regexes done");
-
-        var ranks = Array();
-        var fullNameMatches = passwdContent.match(fullNameRegExp);
-        if (fullNameMatches) {
-            logging.log(LogLevel.INFO, "Fullname's matches");
-            logging.log(LogLevel.INFO, fullNameMatches);
+    else {
+        var surnameMatches = passwdContent.match(surnameRegExp);
+        if (surnameMatches && surnameMatches.length === 1) {
+            logging.log(LogLevel.DEBUG, "Surname's matches");
+            logging.log(LogLevel.DEBUG, surnameMatches);
 
             var rankRegExp = new RegExp(",([^:]+):");
-            for (var nameMatch of fullNameMatches) {
+            for (var nameMatch of surnameMatches) {
                 var rankArr = nameMatch.match(rankRegExp)
                 
                 if (rankArr.length === 2)
                     ranks.push(rankArr[1]);
             }
         }
-        else {
-            var surnameMatches = passwdContent.match(surnameRegExp);
-            if (surnameMatches && surnameMatches.length === 1) {
-                logging.log(LogLevel.INFO, "Surname's matches");
-                logging.log(LogLevel.INFO, surnameMatches);
-
-                var rankRegExp = new RegExp(",([^:]+):");
-                for (var nameMatch of surnameMatches) {
-                    var rankArr = nameMatch.match(rankRegExp)
-                    
-                    if (rankArr.length === 2)
-                        ranks.push(rankArr[1]);
-                }
-            }
-        }
-
-        logging.log(LogLevel.INFO, "RANKS FOR NAME: " + fullName);
-        logging.log(LogLevel.INFO, ranks);
-        return ranks;
     }
 
-    parseName(name) {
-        var nameNoAccents = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        return nameNoAccents.split(" ");
-    }
-
-    sanitizeName(name) {
-        var nameArr = this.parseName(name);
-        logging.log(LogLevel.INFO, "Parsed name: ");
-        logging.log(LogLevel.INFO, nameArr);
-        return capitalize(nameArr[nameArr.length - 1]) + " " + capitalize(nameArr[0]);
-    }
-
-    sanitizeSurname(surname) {
-        var nameArr = this.parseName(surname);
-        logging.log(LogLevel.INFO, "Parsed surname: ");
-        logging.log(LogLevel.INFO, nameArr);
-        return capitalize(nameArr[nameArr.length - 1]);
-    }
-
-    nameToRegExp(name) {
-        var escapedName = RegExp.escape(name);
-        return new RegExp("^.*" + escapedName + ".*$", "gm");
-    }
+    logging.log(LogLevel.DEBUG, "RANKS FOR NAME: " + fullName);
+    logging.log(LogLevel.DEBUG, ranks);
+    return ranks;
 }
 
+function parseName(name) {
+    var nameNoAccents = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return nameNoAccents.split(" ");
+}
 
-var passwdManager = new PasswdManager();
-passwdManager.readPasswd();
-console.log("Uz po reade");
+function sanitizeName(name) {
+    var nameArr = this.parseName(name);
+    logging.log(LogLevel.DEBUG, "Parsed name: ");
+    logging.log(LogLevel.DEBUG, nameArr);
+    return capitalize(nameArr[nameArr.length - 1]) + " " + capitalize(nameArr[0]);
+}
 
-function hladaj() {
-    var manifest = Object();
-    manifest["fb_group_id"] = "1127391613999255";
-    // Creating an object to send to API
-    var data = Object();
-    data.names = Array();
+function sanitizeSurname(surname) {
+    var nameArr = this.parseName(surname);
+    logging.log(LogLevel.DEBUG, "Parsed surname: ");
+    logging.log(LogLevel.DEBUG, nameArr);
+    return capitalize(nameArr[nameArr.length - 1]);
+}
+
+function nameToRegExp(name) {
+    var escapedName = RegExp.escape(name);
+    return new RegExp("^.*" + escapedName + ".*$", "gm");
+}
+
+function hladaj(passwdContentParam) {
+    var passwdContent = passwdContentParam;
 
     // Getting all the names from posts on the main feed.
     var postNames = document.querySelectorAll("h3.dx.dy")
     for (i = 0; i < postNames.length; i++) {
-        // data.names.push(postNames[i].getElementsByTagName("a")[0].innerText);
         var name = postNames[i].getElementsByTagName("a")[0].innerText;
-        var ranks = passwdManager.getRank(name);
+        var ranks = getRank(passwdContent, name);
         if (ranks.length > 0) {
             var rank = ranks.join(", ");
             logging.log(LogLevel.INFO, name + " has rank: " + rank);
             postNames[i].getElementsByTagName("a")[0].innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + rank + "</span>";
         }
     }
-    logging.log(LogLevel.INFO, "POSTS MAIN FEED");
+    logging.log(LogLevel.DEBUG, "POSTS MAIN FEED");
 
     // When post is opened in a new window
     var postName = document.getElementsByClassName("br bs bt bu")
     for (i = 0; i < postName.length; i++) {
-        // data.names.push(postName[i].getElementsByTagName("a")[0].innerText);
         var name = postName[i].getElementsByTagName("a")[0].innerText;
-        var ranks = passwdManager.getRank(name);
+        var ranks = getRank(passwdContent, name);
         if (ranks.length > 0) {
             var rank = ranks.join(", ");
             logging.log(LogLevel.INFO, name + " has rank: " + rank);
             postName[i].getElementsByTagName("a")[0].innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + rank + "</span>";
         }
     }
-    logging.log(LogLevel.INFO, "POSTS NEW WINDOW");
+    logging.log(LogLevel.DEBUG, "POSTS NEW WINDOW");
 
     // When post has at least one comment 
     var rootDiv = document.querySelectorAll("div.g:not(#root)")
-    for (var i = 0; i < rootDiv.length; i++) {
-        if (rootDiv[i].id.indexOf("ufi_") === -1) 
-            continue;
-        var comments = rootDiv[i].querySelectorAll("div")[0].childNodes[3].childNodes
-        for (var j = 0; j < comments.length; j++) {
-            var name = comments[j].querySelector("div h3 a").innerText
-            // data.names.push(name);
-            var ranks = passwdManager.getRank(name);
-            if (ranks.length > 0) {
-                var rank = ranks.join(", ");
-                logging.log(LogLevel.INFO, name + " has rank: " + rank);
-                comments[j].querySelector("div h3 a").innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + rank + "</span>";
+    if (rootDiv) {
+        for (var i = 0; i < rootDiv.length; i++) {
+            if (rootDiv[i].id.indexOf("ufi_") === -1) 
+                continue;
+
+            var comments = null;
+            try {
+                comments = rootDiv[i].querySelectorAll("div")[0].childNodes[3].childNodes                
             }
-        }	
+            catch (error) {
+                logging.log(LogLevel.ERROR, error);
+            }
+            
+            for (var j = 0; j < comments.length; j++) {
+                var nameElem = comments[j].querySelector("div h3 a");
+                if (!nameElem) // if null
+                    continue;
+    
+                var name = nameElem.innerText;
+                var ranks = getRank(passwdContent, name);
+                if (ranks.length > 0) {
+                    var rank = ranks.join(", ");
+                    logging.log(LogLevel.INFO, name + " has rank: " + rank);
+                    comments[j].querySelector("div h3 a").innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + rank + "</span>";
+                }
+            }	
+        }
+        logging.log(LogLevel.DEBUG, "Comments new window");
     }
-    logging.log(LogLevel.INFO, "Comments new window");
 
     // When comment has at least one subcomment and we on the comment page 
-    if (document.referrer.indexOf(manifest["fb_group_id"]) !== -1 && // if referrer is FIT group 
-        document.URL.indexOf(manifest["fb_group_id"]) === -1) { // but it is not on the FIT group page directly
+    var isSubcommentSection = false;
+    for (var fbGroupId of manifest["fb_group_ids"]) {
+        var isRefererFITGroup = document.referrer.indexOf(fbGroupId) !== -1; // if referrer is FIT group 
+        var isVisitingFITGroup = document.URL.indexOf(fbGroupId) === -1; // but it is not on the FIT group page directly
+
+        if (isRefererFITGroup && isVisitingFITGroup)
+            isSubcommentSection = true;
+    }
+
+    if (isSubcommentSection) {
         var subcommenterName = document.getElementsByClassName("bl bm")
         for (i = 0; i < subcommenterName.length; i++) {
-            // logging.log(LogLevel.INFO, subcommenterName[i].innerText);
-            // data.names.push(subcommenterName[i].innerText);
             var name = subcommenterName[i].innerText;
-            var ranks = passwdManager.getRank(name);
+            var ranks = getRank(passwdContent, name);
             if (ranks.length > 0) {
                 var rank = ranks.join(", ");
                 logging.log(LogLevel.INFO, name + " has rank: " + rank);
@@ -246,20 +236,26 @@ function hladaj() {
             }
         }
     }
-    logging.log(LogLevel.INFO, "Subcomments new new window");
+    logging.log(LogLevel.DEBUG, "Subcomments new new window");
 
-    logging.log(LogLevel.INFO, "Data");
-    logging.log(LogLevel.INFO, data);
-
-    // Sending a JSON object to an API specified before.
-    req.send(JSON.stringify(data));
-
-
-    logging.log(LogLevel.INFO, "Poslal som");
-
-
-    // logging.log(LogLevel.DEBUG, passwdManager.getRank("Oliver Chmelický"));
-
+    // if (document.referrer.indexOf(manifest["fb_group_id"]) !== -1 && // if referrer is FIT group 
+    //     document.URL.indexOf(manifest["fb_group_id"]) === -1) { // but it is not on the FIT group page directly
+    //     var subcommenterName = document.getElementsByClassName("bl bm")
+    //     for (i = 0; i < subcommenterName.length; i++) {
+    //         var name = subcommenterName[i].innerText;
+    //         var ranks = getRank(passwdContent, name);
+    //         if (ranks.length > 0) {
+    //             var rank = ranks.join(", ");
+    //             logging.log(LogLevel.INFO, name + " has rank: " + rank);
+    //             subcommenterName[i].innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + rank + "</span>";
+    //         }
+    //     }
+    // }
 }
 
-setTimeout(hladaj, 3000);
+readPasswd.then(function(result){
+    hladaj(result);
+}, function(error){
+    logging.log(LogLevel.INFO, error);
+});
+
