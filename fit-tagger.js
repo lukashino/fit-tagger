@@ -13,7 +13,12 @@
 // var manifest = browser.runtime.getManifest();
 var manifest = Object();
 manifest["fb_group_id"] = "1127391613999255";
-manifest["fb_group_ids"] = ["1127391613999255", "1502394016560101"];
+manifest["fb_group_ids"] = [
+    "1127391613999255", //FIT BIT 2016 - 2019
+    "1502394016560101", //FIT MIT 2019 - 2021
+    "1052721498078979", //FIT BIT 2015 - 2018
+    "2002665913382033"  //FIT MIT 2018 - 2020
+];
 
 /*
 Add the passwd file to the script by:
@@ -157,7 +162,7 @@ function hladaj(passwdContentParam) {
     var passwdContent = passwdContentParam;
 
     // Getting all the names from posts on the main feed.
-    var postNames = document.querySelectorAll("h3.dx.dy")
+    var postNames = document.querySelectorAll("td.v.bo div h3.bu")
     for (i = 0; i < postNames.length; i++) {
         var name = postNames[i].getElementsByTagName("a")[0].innerText;
         var ranks = getRank(passwdContent, name);
