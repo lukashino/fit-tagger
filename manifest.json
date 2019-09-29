@@ -1,5 +1,4 @@
 {
-
   "manifest_version": 2,
   "name": "Fit-tagger",
   "version": "1.0.2",
@@ -16,14 +15,12 @@
         "light": "icons/fit-tagger-48.png",
         "dark": "icons/fit-tagger-48.png",
         "size": 48
-    }]
+    }],
+    "default_title": "Fit-tagger",
+    "default_popup": "popup/main-menu.html",
+    "browser_style": true
   },
   
-  "sidebar_action": {
-    "default_title": "Fit-tagger",
-    "default_panel": "popup/main-menu.html"
-  },
-
   "background": {
     "scripts": ["background.js"]
   },
@@ -34,7 +31,6 @@
       "js": ["fit-tagger.js", "content_scripts/content.js"]
     }
   ],
-
 
   "permissions": [
     "<all_urls>",

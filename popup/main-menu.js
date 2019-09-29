@@ -19,15 +19,15 @@ function handlePicked() {
 
 function handleBtnClicked() {
     const passwdFile = "Ahoj Janooooooooooo";
-    browser.tabs.executeScript({
+    chrome.tabs.executeScript({
             file: "/content_scripts/content.js"
-        }).then(messageContent)
-        .catch(reportError);
+        }, messageContent);
 
     function messageContent() {
-        const gettingActiveTab = browser.tabs.query({active: true, currentWindow: true});
-        gettingActiveTab.then((tabs) => {
-            browser.tabs.sendMessage(tabs[0].id, {passwdFile});
+        chrome.tabs.query(
+            {active: true, currentWindow: true}, 
+            function (tabs) {
+                chrome.tabs.sendMessage(tabs[0].id, {passwdFile});
         });
     }
 
@@ -42,16 +42,15 @@ Insert the content script and send the file to the content script using a messag
 function savePasswdFile(fileList) {
     const passwdFile = fileList[0];
 
-    // browser.runtime.sendMessage({passwdFile});
-    browser.tabs.executeScript({
+    chrome.tabs.executeScript({
             file: "/content_scripts/content.js"
-        }).then(messageContent)
-        .catch(reportError);
+        }, messageContent);
 
     function messageContent() {
-        const gettingActiveTab = browser.tabs.query({active: true, currentWindow: true});
-        gettingActiveTab.then((tabs) => {
-            browser.tabs.sendMessage(tabs[0].id, {passwdFile});
+        chrome.tabs.query(
+            {active: true, currentWindow: true}, 
+            function (tabs) {
+                chrome.tabs.sendMessage(tabs[0].id, {passwdFile});
         });
     }
 

@@ -10,7 +10,7 @@
 // Sends a JSON request to an API end point
 // JSON req consists of names extracted from HTML
 
-// var manifest = browser.runtime.getManifest();
+// var manifest = chrome.runtime.getManifest();
 var manifest = Object();
 manifest["fb_group_id"] = "1127391613999255";
 manifest["fb_group_ids"] = [
@@ -26,13 +26,13 @@ Add the passwd file to the script by:
 function savePasswdPath(request, sender, sendResponse) {
     console.log("I have received something");
     console.log(request);
-    browser.storage.local.set({"passwdFile" : request.passwdFile});
+    chrome.storage.local.set({"passwdFile" : request.passwdFile});
 }
 
 /*
 Assign savePasswdPath() as a listener for messages from the extension.
 */
-browser.runtime.onMessage.addListener(savePasswdPath);
+chrome.runtime.onMessage.addListener(savePasswdPath);
 
 const LogLevel = {
     "ERROR" : 0,
@@ -65,26 +65,13 @@ const logging = new Logging(LogLevel.DEBUG);
 
 var readPasswd = new Promise(function(resolve, reject) {
     logging.log(LogLevel.DEBUG, "READ storage contents:");
-    var getPasswd = browser.storage.local.get();
-
-    getPasswd.then(results => {
-        logging.log(LogLevel.DEBUG, "Local storage contents:");
-        logging.log(LogLevel.DEBUG, results);
-
-        var passwdFile = results["passwdFile"];
+    chrome.storage.local.get("passwdFile", function(passwdFile) {
+        logging.log(LogLevel.DEBUG, passwdFile["passwdFile"]);
         if (passwdFile) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                // passwdContent = e.target.result;
-                
-                resolve(e.target.result);
-            };
-
-            reader.readAsText(passwdFile);
+            resolve(passwdFile["passwdFile"]);
         }
-        else {
+        else 
             reject(Error("PASSWD FILE NOT LOADED"));
-        }
     });
 });
 
@@ -162,7 +149,7 @@ function hladaj(passwdContentParam) {
     var passwdContent = passwdContentParam;
 
     // Getting all the names from posts on the main feed.
-    var postNames = document.querySelectorAll("td.v.bo div h3.bu")
+    var postNames = document.querySelectorAll("td.u.bn div h3.bt")
     for (i = 0; i < postNames.length; i++) {
         var name = postNames[i].getElementsByTagName("a")[0].innerText;
         var ranks = getRank(passwdContent, name);
@@ -175,7 +162,7 @@ function hladaj(passwdContentParam) {
     logging.log(LogLevel.DEBUG, "POSTS MAIN FEED");
 
     // When post is opened in a new window
-    var postName = document.getElementsByClassName("br bs bt bu")
+    var postName = document.getElementsByClassName("bq br bs bt")
     for (i = 0; i < postName.length; i++) {
         var name = postName[i].getElementsByTagName("a")[0].innerText;
         var ranks = getRank(passwdContent, name);
@@ -188,7 +175,7 @@ function hladaj(passwdContentParam) {
     logging.log(LogLevel.DEBUG, "POSTS NEW WINDOW");
 
     // When post has at least one comment 
-    var rootDiv = document.querySelectorAll("div.g:not(#root)")
+    var rootDiv = document.querySelectorAll("div.f:not(#root)")
     if (rootDiv) {
         for (var i = 0; i < rootDiv.length; i++) {
             if (rootDiv[i].id.indexOf("ufi_") === -1) 
