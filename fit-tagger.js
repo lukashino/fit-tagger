@@ -15,6 +15,9 @@ var manifest = Object();
 manifest["fb_group_id"] = "1127391613999255";
 manifest["fb_group_ids"] = [
     "1127391613999255", //FIT BIT 2016 - 2019
+    "1889426788049352", //FIT BIT 2017 - 2020
+    "1697217713649334", //FIT BIT 2018 - 2021
+    "605850019828728",  //FIT BIT 2019 - 2022
     "1502394016560101", //FIT MIT 2019 - 2021
     "1052721498078979", //FIT BIT 2015 - 2018
     "2002665913382033"  //FIT MIT 2018 - 2020
@@ -163,6 +166,10 @@ function hladaj(passwdContentParam) {
 
     // Getting all the names from posts on the main feed.
     var postNames = document.querySelectorAll("td.v.bo div h3.bu")
+    if (postNames.length === 0) {
+        postNames = document.querySelectorAll("td.u.bn div h3.bt");
+    }
+    
     for (i = 0; i < postNames.length; i++) {
         var name = postNames[i].getElementsByTagName("a")[0].innerText;
         var ranks = getRank(passwdContent, name);
@@ -176,6 +183,9 @@ function hladaj(passwdContentParam) {
 
     // When post is opened in a new window
     var postName = document.getElementsByClassName("br bs bt bu")
+    if (postName.length === 0) {
+        postName = document.getElementsByClassName("bu bv bw bx");
+    }
     for (i = 0; i < postName.length; i++) {
         var name = postName[i].getElementsByTagName("a")[0].innerText;
         var ranks = getRank(passwdContent, name);
