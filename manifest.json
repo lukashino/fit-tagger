@@ -5,43 +5,25 @@
   "version": "1.0.2",
 
   "description": "An extension for students of Faculty of Information Technology at Brno University of Technology. Provides simple year tags corresponding to each name.",
-
-  "icons": {
-    "48": "icons/fit-tagger-48.png"
-  },
-
-  "browser_action": {
-    "default_icon": "icons/fit-tagger-48.png",
-    "theme_icons": [{
-        "light": "icons/fit-tagger-48.png",
-        "dark": "icons/fit-tagger-48.png",
-        "size": 48
-    }]
-  },
   
   "sidebar_action": {
     "default_title": "Fit-tagger",
-    "default_panel": "popup/main-menu.html"
-  },
-
-  "background": {
-    "scripts": ["background.js"]
+    "default_panel": "popup/main-menu.html",
+    "default_icon": "icons/fit-tagger-48.png"
   },
 
   "content_scripts": [
     {
-      "matches": ["*://*.mbasic.facebook.com/*"],
+      "matches": ["*://*.mbasic.facebook.com/*", "*://*.m.facebook.com/*"],
       "js": ["fit-tagger.js", "content_scripts/content.js"]
     }
   ],
-
 
   "permissions": [
     "<all_urls>",
     "activeTab",
     "tabs",
-    "storage",
-    "*://www.stud.fit.vutbr.cz/~xsismi01/fit_ranks/index.php"
+    "storage"
   ]
 
 }
