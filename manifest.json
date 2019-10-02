@@ -8,7 +8,7 @@
   
   "sidebar_action": {
     "default_title": "Fit-tagger",
-    "default_panel": "popup/main-menu.html",
+    "default_panel": "sidebar/main-menu.html",
     "default_icon": "icons/fit-tagger-48.png"
   },
 
