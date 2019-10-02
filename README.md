@@ -2,7 +2,7 @@
 An open-source web browser extension for students of Faculty of Information Technology at Brno University of Technology which provides an automatic tagging of students according to implemented criteria.
 
 ### Supported browser
-Firefox
+Firefox  
 Chrome
 
 ### Trying it out in firefox
@@ -24,6 +24,6 @@ Chrome
 4) Click "Load unpacked"
 5) Select the root directory of downloaded repository
 
-**NOTE** Because Chrome blocks loading mixed content every time it seems like it doesn't work, please look at the right side of the URL bar. If there is a shield click on it and allow loading unsafe scripts.
+**NOTE** It is needed to download passwd file from /etc/passwd on Merlin or Eva and afterwards load it to the extension via "Load passwd" button. Please do this action on mbasic.facebook.com page since loading the file will not work on the browser's addon config page.
 
 You now have installed the fit-tagger.
