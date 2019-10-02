@@ -152,7 +152,10 @@ function hladaj(passwdContentParam) {
     var passwdContent = passwdContentParam;
 
     // Getting all the names from posts on the main feed.
-    var postNames = document.querySelectorAll("td.u.bn div h3.bt")
+    var postNames = document.querySelectorAll("td.u.bn div h3.bt");
+    if (postNames.length === 0)
+        postNames = document.querySelectorAll("td.t.bm div h3.bs"); // FIT BIT 2018-21
+
     for (i = 0; i < postNames.length; i++) {
         var name = postNames[i].getElementsByTagName("a")[0].innerText;
         var ranks = getRank(passwdContent, name);
@@ -169,6 +172,7 @@ function hladaj(passwdContentParam) {
     if (postName.length === 0) {
         postName = document.getElementsByClassName("bt bu bv bw");
     }
+
     for (i = 0; i < postName.length; i++) {
         var name = postName[i].getElementsByTagName("a")[0].innerText;
         var ranks = getRank(passwdContent, name);
