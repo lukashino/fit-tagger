@@ -15,6 +15,9 @@ var manifest = Object();
 manifest["fb_group_id"] = "1127391613999255";
 manifest["fb_group_ids"] = [
     "1127391613999255", //FIT BIT 2016 - 2019
+    "1889426788049352", //FIT BIT 2017 - 2020
+    "1697217713649334", //FIT BIT 2018 - 2021
+    "605850019828728", //FIT BIT 2019 - 2022
     "1502394016560101", //FIT MIT 2019 - 2021
     "1052721498078979", //FIT BIT 2015 - 2018
     "2002665913382033"  //FIT MIT 2018 - 2020
@@ -162,7 +165,10 @@ function hladaj(passwdContentParam) {
     logging.log(LogLevel.DEBUG, "POSTS MAIN FEED");
 
     // When post is opened in a new window
-    var postName = document.getElementsByClassName("bq br bs bt")
+    var postName = document.getElementsByClassName("bq br bs bt");
+    if (postName.length === 0) {
+        postName = document.getElementsByClassName("bt bu bv bw");
+    }
     for (i = 0; i < postName.length; i++) {
         var name = postName[i].getElementsByTagName("a")[0].innerText;
         var ranks = getRank(passwdContent, name);
@@ -217,7 +223,7 @@ function hladaj(passwdContentParam) {
     }
 
     if (isSubcommentSection) {
-        var subcommenterName = document.getElementsByClassName("bl bm")
+        var subcommenterName = document.getElementsByClassName("bk bl")
         for (i = 0; i < subcommenterName.length; i++) {
             var name = subcommenterName[i].innerText;
             var ranks = getRank(passwdContent, name);
@@ -246,8 +252,11 @@ function hladaj(passwdContentParam) {
 }
 
 readPasswd.then(function(result){
-    hladaj(result);
+    if (result)
+        hladaj(result);
+    else 
+        logging.log(LogLevel.ERROR, "PLEASE LOAD PASSWD AND REFRESH THE PAGE");
 }, function(error){
-    logging.log(LogLevel.INFO, error);
+    logging.log(LogLevel.WARNING, error);
 });
 
