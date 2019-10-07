@@ -13,6 +13,27 @@
     font-size: 150%;
 }
 
+.success {
+    background-color:#00bd09; 
+    border: 1px solid green;
+}
+
+.fail {
+    background-color:#e61700; 
+    border: 1px solid red;
+}
+
+#popup {
+    color: white; 
+    border-radius:7px; 
+    font-size: 16px; 
+    padding: 7px; 
+    display: inline-block; 
+    width: 100%; 
+    text-align: center; 
+    font-weight: 700; 
+}
+
 #input {
     display: none;
 }

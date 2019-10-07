@@ -252,20 +252,6 @@ function hladaj(passwdContentParam) {
         }
     }
     logging.log(LogLevel.DEBUG, "Subcomments new new window");
-
-    // if (document.referrer.indexOf(manifest["fb_group_id"]) !== -1 && // if referrer is FIT group 
-    //     document.URL.indexOf(manifest["fb_group_id"]) === -1) { // but it is not on the FIT group page directly
-    //     var subcommenterName = document.getElementsByClassName("bl bm")
-    //     for (i = 0; i < subcommenterName.length; i++) {
-    //         var name = subcommenterName[i].innerText;
-    //         var ranks = getRank(passwdContent, name);
-    //         if (ranks.length > 0) {
-    //             var rank = ranks.join(", ");
-    //             logging.log(LogLevel.INFO, name + " has rank: " + rank);
-    //             subcommenterName[i].innerHTML += "<span style=\"background: #BBB; color: white; border-radius: 20px; padding: 0 5px; margin-left: 5px;\">" + rank + "</span>";
-    //         }
-    //     }
-    // }
 }
 
 readPasswd.then(function(result){
